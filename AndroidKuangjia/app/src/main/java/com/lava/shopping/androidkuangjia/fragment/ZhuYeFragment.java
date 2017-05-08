@@ -11,17 +11,22 @@ import android.provider.MediaStore;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lava.shopping.androidkuangjia.R;
 import com.lava.shopping.androidkuangjia.base.BaseFragment;
 import com.lava.shopping.androidkuangjia.items.MediaItem;
+import com.lava.shopping.androidkuangjia.utils.TimeUtils;
 
+import java.text.Format;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
 
 /**
@@ -52,6 +57,7 @@ public class ZhuYeFragment extends BaseFragment{
                 //数据为空textView 显示
                 videoTv.setVisibility(View.VISIBLE);
             }
+            videoLv.setAdapter(new VideoListAdapter());
         }
     };
 
@@ -66,6 +72,7 @@ public class ZhuYeFragment extends BaseFragment{
         videoLv = (ListView) view.findViewById(R.id.video_lv);
         videoPb = (ProgressBar) view.findViewById(R.id.video_pb);
         videoTv = (TextView) view.findViewById(R.id.video_tv);
+        videoLv.setOnItemClickListener(new MediaItemClickListener());
         return view;
     }
 
@@ -107,7 +114,6 @@ public class ZhuYeFragment extends BaseFragment{
         }.start();
     }
 
-
     class VideoListAdapter extends BaseAdapter{
         @Override
         public int getCount() {
@@ -126,14 +132,34 @@ public class ZhuYeFragment extends BaseFragment{
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
+            ViewHolder viewHolder;
             if(view==null){
+                viewHolder = new ViewHolder();
                 view = View.inflate(mContext,R.layout.media_list_item,viewGroup);
+                viewHolder.mediaDuration = (TextView) view.findViewById(R.id.media_duration_tv);
+                viewHolder.mediaName = (TextView) view.findViewById(R.id.media_name_tv);
+                viewHolder.mediaSize = (TextView) view.findViewById(R.id.media_size_tv);
+                view.setTag(viewHolder);
+            }else{
+                viewHolder = (ViewHolder) view.getTag();
             }
-            return null;
+            viewHolder.mediaName.setText(mediaItems.get(i).getMediaName());
+            viewHolder.mediaSize.setText(android.text.format.Formatter.formatFileSize(mContext,mediaItems.get(i).getMediaSize()));
+            viewHolder.mediaDuration.setText(new TimeUtils().stringForTime((int) mediaItems.get(i).getMediaSize()));
+            return view;
         }
     }
     
     static class ViewHolder{
+        private static TextView mediaName;
+        private static TextView mediaDuration;
+        private static TextView mediaSize;
+    }
 
+    class MediaItemClickListener implements AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Toast.makeText(mContext,mediaItems.get(position).toString(),Toast.LENGTH_SHORT).show();
+        }
     }
 }
