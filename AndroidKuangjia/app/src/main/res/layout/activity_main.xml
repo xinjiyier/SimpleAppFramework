@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.lava.shopping.androidkuangjia.MainActivity">
+
+    <include layout="@layout/header_layout"></include>
+
+    <FrameLayout
+        android:id="@+id/framework_container"
+        android:background="@color/radiogroup_bg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"></FrameLayout>
+
+    <RadioGroup
+        android:id="@+id/bottom_radiogroup"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:orientation="horizontal"
+        android:background="@color/radiogroup_bg">
+        <RadioButton
+            style="@style/BottomRadioButton"
+            android:background="@drawable/icon"/>
+        <RadioButton
+            android:id="@+id/shouye"
+            style="@style/BottomRadioButton"
+            android:drawableTop="@drawable/shouye_bg"
+            android:text="@string/shouye"/>
+        <RadioButton
+            android:id="@+id/weitao"
+            style="@style/BottomRadioButton"
+            android:drawableTop="@drawable/weitao_bg"
+            android:text="@string/weitao"/>
+        <RadioButton
+            android:id="@+id/wodetaobao"
+            style="@style/BottomRadioButton"
+            android:drawableTop="@drawable/wodetaobao_bg"
+            android:text="@string/wodetaobao" />
+        <RadioButton
+            android:id="@+id/gouwuche"
+            style="@style/BottomRadioButton"
+            android:drawableTop="@drawable/gouwuche_bg"
+            android:text="@string/gouwuche"/>
+        <RadioButton
+            android:id="@+id/chawuliu"
+            style="@style/BottomRadioButton"
+            android:drawableTop="@drawable/chawuliu_bg"
+            android:text="@string/chawuliu"/>
+    </RadioGroup>
+
+</LinearLayout>

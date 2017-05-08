@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="radiogroup_bg">#FCFCFC</color>
+    <color name="bottom_radiobutton_textcolor_un">#989DA0</color>
+    <color name="bottom_radiobutton_textcolor_on">#FF5500</color>
+    <color name="welcome_bg">#FF5500</color>
+    <color name="welcome_text_color">#FCFCFC</color>
+    <color name="framework_text_color">#000000</color>
+</resources>

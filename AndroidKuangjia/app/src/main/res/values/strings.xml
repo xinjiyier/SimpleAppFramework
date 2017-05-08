@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">AndroidKuangjia</string>
+    <string name="logo">淘宝狗的日常</string>
+    <string name="shouye">首页</string>
+    <string name="weitao">微淘</string>
+    <string name="wodetaobao">我的淘宝</string>
+    <string name="gouwuche">购物车</string>
+    <string name="chawuliu">查物流</string>
+</resources>
