@@ -24,6 +24,7 @@
         android:background="@color/radiogroup_bg">
         <RadioButton
             style="@style/BottomRadioButton"
+            android:clickable="false"
             android:background="@drawable/icon"/>
         <RadioButton
             android:id="@+id/shouye"

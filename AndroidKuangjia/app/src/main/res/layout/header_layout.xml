@@ -1,12 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.lava.shopping.androidkuangjia.view.AppHeaderView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="50dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:background="#FF5500">
-    <TextView
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/logo"
-        android:layout_centerInParent="true"
+        android:layout_marginStart="5dp"
+        android:src="@drawable/ic_topbanner_logo"
         android:textSize="16sp"/>
-</RelativeLayout>
+    <EditText
+        android:id="@+id/topbanner_search_text"
+        android:drawablePadding="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:layout_weight="1"
+        android:drawableStart="@drawable/sousuokuang_image"
+        android:background="@drawable/sousuokuang_bg"
+        android:hint="@string/search_in_all"/>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/topbanner_game"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_topbanner_game"/>
+        <ImageView
+            android:layout_toEndOf="@+id/topbanner_game"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_topbanner_game_ovil"/>
+    </RelativeLayout>
+    <ImageView
+        android:id="@+id/topbanner_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="3dp"
+        android:src="@drawable/ic_topbanner_record"/>
+</com.lava.shopping.androidkuangjia.view.AppHeaderView>

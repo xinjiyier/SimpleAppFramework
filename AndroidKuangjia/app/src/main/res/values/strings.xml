@@ -6,4 +6,6 @@
     <string name="wodetaobao">我的淘宝</string>
     <string name="gouwuche">购物车</string>
     <string name="chawuliu">查物流</string>
+    <string name="search_in_all">全网搜索</string>
+    <string name="no_video">没有找到视频资源</string>
 </resources>
