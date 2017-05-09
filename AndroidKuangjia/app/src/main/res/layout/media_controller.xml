@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/ll_mediaplayer_top_line"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:background="@drawable/progress_secondaryprogress"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tv_media_name"
+            android:layout_marginStart="5dp"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="视频名称"/>
+
+        <ImageView
+            android:id="@+id/iv_media_battery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_battery_0"/>
+
+        <TextView
+            android:id="@+id/tv_system_time"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1:00:30"/>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_below="@+id/ll_mediaplayer_top_line">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/voice_icon_image"/>
+        <SeekBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progress="20"
+            android:maxHeight="6dp"
+            android:minHeight="6dp"
+            android:thumb="@drawable/progress_thumb"
+            android:layout_weight="1"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/mediaplayer_switch_image"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_above="@+id/ll_mediaplayer_bottom_line"
+        android:orientation="horizontal"
+        >
+        <TextView
+            android:id="@+id/tv_media_duration_complete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00:00"
+            />
+        <SeekBar
+            android:id="@+id/sb_media_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:progress="20"
+            android:maxHeight="6dp"
+            android:minHeight="6dp"
+            android:thumb="@drawable/progress_thumb"
+            android:layout_weight="1"/>
+        <TextView
+            android:id="@+id/tv_media_duration_total"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1:00:30"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_mediaplayer_bottom_line"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/mediaplayer_return_image"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/mediaplayer_backward_image"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/voice_play_image"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/mediaplayer_switch_image"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/voice_icon_image"/>
+
+    </LinearLayout>
+</RelativeLayout>
