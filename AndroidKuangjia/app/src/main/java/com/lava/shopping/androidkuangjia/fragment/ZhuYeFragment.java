@@ -3,8 +3,10 @@ package com.lava.shopping.androidkuangjia.fragment;
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaDataSource;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lava.shopping.androidkuangjia.R;
+import com.lava.shopping.androidkuangjia.activity.ShoppingVideoPlayer;
 import com.lava.shopping.androidkuangjia.base.BaseFragment;
 import com.lava.shopping.androidkuangjia.items.MediaItem;
 import com.lava.shopping.androidkuangjia.utils.TimeUtils;
@@ -82,8 +85,10 @@ public class ZhuYeFragment extends BaseFragment{
     }
 
     public void getLocalVideoData() {
-        if(mediaItems != null){
+        if(mediaItems == null){
             mediaItems = new ArrayList<>();
+        }else{
+            mediaItems.clear();
         }
         new Thread(){
             @Override
@@ -135,7 +140,7 @@ public class ZhuYeFragment extends BaseFragment{
             ViewHolder viewHolder;
             if(view==null){
                 viewHolder = new ViewHolder();
-                view = View.inflate(mContext,R.layout.media_list_item,viewGroup);
+                view = View.inflate(mContext,R.layout.media_list_item,null);
                 viewHolder.mediaDuration = (TextView) view.findViewById(R.id.media_duration_tv);
                 viewHolder.mediaName = (TextView) view.findViewById(R.id.media_name_tv);
                 viewHolder.mediaSize = (TextView) view.findViewById(R.id.media_size_tv);
@@ -149,17 +154,20 @@ public class ZhuYeFragment extends BaseFragment{
             return view;
         }
     }
-    
+
     static class ViewHolder{
-        private static TextView mediaName;
-        private static TextView mediaDuration;
-        private static TextView mediaSize;
+        private  TextView mediaName;
+        private  TextView mediaDuration;
+        private  TextView mediaSize;
     }
 
     class MediaItemClickListener implements AdapterView.OnItemClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Toast.makeText(mContext,mediaItems.get(position).toString(),Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(mContext,ShoppingVideoPlayer.class);
+            intent.setDataAndType(Uri.parse(mediaItems.get(position).getMediaData()),"video/*");
+            startActivity(intent);
         }
     }
 }

@@ -9,4 +9,6 @@
     <color name="welcome_bg">#FF5500</color>
     <color name="welcome_text_color">#FCFCFC</color>
     <color name="framework_text_color">#000000</color>
+    <color name="list_item_pressed">#F2F2F2</color>
+    <color name="list_item_normal">#ffffff</color>
 </resources>
