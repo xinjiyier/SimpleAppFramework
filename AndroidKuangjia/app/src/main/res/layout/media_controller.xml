@@ -104,17 +104,17 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/voice_play_image"/>
+            android:background="@drawable/media_play_image"/>
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/mediaplayer_switch_image"/>
+            android:background="@drawable/mediaplayer_next_image"/>
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/voice_icon_image"/>
+            android:background="@drawable/mediaplayer_full_screen_image"/>
 
     </LinearLayout>
 </RelativeLayout>
