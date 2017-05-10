@@ -6,15 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +22,10 @@ import android.widget.VideoView;
 import com.lava.shopping.androidkuangjia.R;
 import com.lava.shopping.androidkuangjia.items.MediaItem;
 import com.lava.shopping.androidkuangjia.utils.TimeUtils;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 public class ShoppingVideoPlayer extends Activity implements View.OnClickListener{
 
@@ -47,6 +50,8 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
     private ImageView ivFullScreen;
 
     private TimeUtils timeUtils;
+    private List<MediaItem> mediaItems;
+    int mediaItemsPosition;
 
     private static final int SB_REFRESH = 0;
 
@@ -64,11 +69,26 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         }
     };
 
+    private void refreshSystemTime() {
+        SimpleDateFormat format = new SimpleDateFormat("hh:mm");
+        Date date = new Date(System.currentTimeMillis());
+        String currentTime = format.format(date);
+        tvSystemTime.setText(currentTime);
+    }
+
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            int batteryLevel = intent.getIntExtra("level",0);
-            refreshBatteryIcon(batteryLevel);
+            switch(intent.getAction()){
+                case Intent.ACTION_BATTERY_CHANGED:
+                    int batteryLevel = intent.getIntExtra("level",0);
+                    refreshBatteryIcon(batteryLevel);
+                    break;
+                case Intent.ACTION_TIME_TICK:
+                    refreshSystemTime();
+                    break;
+            }
+
         }
     };
 
@@ -103,6 +123,12 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         init();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshSystemTime();
+    }
+
     private void findViews() {
         /**
          * titleBar line views
@@ -134,6 +160,8 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         ivPlayPause = (ImageView)findViewById( R.id.iv_play_pause );
         ivNext = (ImageView)findViewById( R.id.iv_next );
         ivFullScreen = (ImageView)findViewById( R.id.iv_full_screen );
+
+        setLastAndNextIconState(mediaItemsPosition);
     }
 
 
@@ -143,12 +171,14 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         mVideoView.setOnCompletionListener(new OnMediaCompleted());
         mVideoView.setOnErrorListener(new OnMediaErrored());
         mVideoView.setOnPreparedListener(new OnMediaPrepared());
+        mediaItemsPosition = getIntent().getIntExtra("position",0);
         if(mVideoView!=null){
-            mVideoView.setVideoURI(getIntent().getData());
+            mVideoView.setVideoURI(getData(mediaItemsPosition));
         }
         //mVideoView.setMediaController(new MediaController(ShoppingVideoPlayer.this));
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        filter.addAction(Intent.ACTION_TIME_TICK);
         registerReceiver(receiver,filter);
         findViews();
         initListener();
@@ -176,15 +206,59 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
             case R.id.iv_return:
                 break;
             case R.id.iv_backward:
+                toLastVideo();
                 break;
             case R.id.iv_play_pause:
                 refeshPlayAndPauseIcon();
                 break;
             case R.id.iv_next:
+                toNextVideo();
                 break;
             case R.id.iv_full_screen:
                 break;
         }
+    }
+
+    private void toNextVideo() {
+        int mediaSize = mediaItems.size();
+        if(mediaItemsPosition == (mediaSize-1)){
+            //如果当前为最后一个，则播放第一个视频
+        }else{
+            //就播放下一个视频
+            mediaItemsPosition++;
+            mVideoView.setVideoURI(Uri.parse(mediaItems.get(mediaItemsPosition).getMediaData()));
+            setLastAndNextIconState(mediaItemsPosition);
+        }
+        Toast.makeText(this, "mediaSize  "+mediaSize, Toast.LENGTH_SHORT).show();
+    }
+
+    private void setLastAndNextIconState(int position) {
+        int mediaSize = mediaItems.size();
+        ivNext.setEnabled(true);
+        ivBackward.setEnabled(true);
+        if(++position > (mediaSize-1)){
+            //当前为倒数第一个
+            Log.d("ccc","当前为倒数第一个");
+            ivNext.setEnabled(false);
+        }
+        if((position-2) < 0){
+            //当前为第一个
+            Log.d("ccc","当前为第一个");
+            ivBackward.setEnabled(false);
+        }
+    }
+
+    private void toLastVideo() {
+        int mediaSize = mediaItems.size();
+        if(mediaItemsPosition == 0){
+            //如果当前为第一个，则弹框提示
+        }else{
+            //就播放上一个视频
+            mediaItemsPosition--;
+            mVideoView.setVideoURI(Uri.parse(mediaItems.get(mediaItemsPosition).getMediaData()));
+            setLastAndNextIconState(mediaItemsPosition);
+        }
+        Toast.makeText(this, "mediaSize  "+mediaSize, Toast.LENGTH_SHORT).show();
     }
 
     private void refeshPlayAndPauseIcon(){
@@ -196,6 +270,18 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
             ivPlayPause.setBackgroundResource(R.drawable.pause_image);
         }
     }
+
+    public Uri getData(int position) {
+        Uri uri;
+        mediaItems = (List<MediaItem>) getIntent().getSerializableExtra("videolist");
+        if(mediaItems != null && mediaItems.size() > 0){
+            uri = Uri.parse(mediaItems.get(mediaItemsPosition).getMediaData());
+        }else{
+            uri = getIntent().getData();
+        }
+        return uri;
+    }
+
     class OnMediaCompleted implements MediaPlayer.OnCompletionListener {
         @Override
         public void onCompletion(MediaPlayer mediaPlayer) {

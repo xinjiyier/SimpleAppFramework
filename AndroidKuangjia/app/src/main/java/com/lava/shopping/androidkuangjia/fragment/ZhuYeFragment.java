@@ -5,17 +5,15 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.media.MediaDataSource;
-import android.net.Uri;
+
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -27,9 +25,8 @@ import com.lava.shopping.androidkuangjia.base.BaseFragment;
 import com.lava.shopping.androidkuangjia.items.MediaItem;
 import com.lava.shopping.androidkuangjia.utils.TimeUtils;
 
-import java.text.Format;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.List;
 
 /**
@@ -167,7 +164,11 @@ public class ZhuYeFragment extends BaseFragment{
             Toast.makeText(mContext,mediaItems.get(position).toString(),Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(mContext,ShoppingVideoPlayer.class);
             intent.putExtra("mediaName",mediaItems.get(position).getMediaName());
-            intent.setDataAndType(Uri.parse(mediaItems.get(position).getMediaData()),"video/*");
+            //intent.setDataAndType(Uri.parse(mediaItems.get(position).getMediaData()),"video/*");
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("videolist", (Serializable) mediaItems);
+            intent.putExtras(bundle);
+            intent.putExtra("position",position);
             startActivity(intent);
         }
     }

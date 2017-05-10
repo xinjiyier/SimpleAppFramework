@@ -1,10 +1,12 @@
 package com.lava.shopping.androidkuangjia.items;
 
+import java.io.Serializable;
+
 /**
  * Created by Xiaoping.Chen on 2017/5/8.
  */
 
-public class MediaItem {
+public class MediaItem implements Serializable{
     private String mediaName;
     private long mediaSize;
     private long mediaDuration;
