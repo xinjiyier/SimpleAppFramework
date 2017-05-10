@@ -166,6 +166,7 @@ public class ZhuYeFragment extends BaseFragment{
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Toast.makeText(mContext,mediaItems.get(position).toString(),Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(mContext,ShoppingVideoPlayer.class);
+            intent.putExtra("mediaName",mediaItems.get(position).getMediaName());
             intent.setDataAndType(Uri.parse(mediaItems.get(position).getMediaData()),"video/*");
             startActivity(intent);
         }

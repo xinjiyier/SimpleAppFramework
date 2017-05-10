@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
     <LinearLayout
-        android:id="@+id/ll_mediaplayer_top_line"
+        android:id="@+id/ll_mediaplayer_titlebar_line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
@@ -31,17 +33,23 @@
             android:text="1:00:30"/>
 
     </LinearLayout>
+
     <LinearLayout
+        android:id="@+id/ll_mediaplayer_voice_line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_below="@+id/ll_mediaplayer_top_line">
+        android:background="#000000"
+        android:layout_below="@+id/ll_mediaplayer_titlebar_line">
         <ImageView
+            android:id="@+id/iv_voice_silence"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="true"
             android:background="@drawable/voice_icon_image"/>
         <SeekBar
+            android:id="@+id/sb_media_voice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:progress="20"
@@ -50,16 +58,22 @@
             android:thumb="@drawable/progress_thumb"
             android:layout_weight="1"/>
         <ImageView
+            android:id="@+id/iv_switch_player"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:clickable="true"
             android:background="@drawable/mediaplayer_switch_image"/>
     </LinearLayout>
+
     <LinearLayout
+        android:id="@+id/ll_mediaplayer_duration_line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:layout_above="@+id/ll_mediaplayer_bottom_line"
+        android:layout_above="@+id/ll_mediaplayer_control_line"
         android:orientation="horizontal"
+        android:background="#000000"
         >
         <TextView
             android:id="@+id/tv_media_duration_complete"
@@ -75,6 +89,8 @@
             android:maxHeight="6dp"
             android:minHeight="6dp"
             android:thumb="@drawable/progress_thumb"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             android:layout_weight="1"/>
         <TextView
             android:id="@+id/tv_media_duration_total"
@@ -84,37 +100,54 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/ll_mediaplayer_bottom_line"
+        android:id="@+id/ll_mediaplayer_control_line"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/progress_secondaryprogress">
 
         <ImageView
+            android:id="@+id/iv_return"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="true"
             android:background="@drawable/mediaplayer_return_image"/>
 
         <ImageView
+            android:id="@+id/iv_backward"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="true"
             android:background="@drawable/mediaplayer_backward_image"/>
 
         <ImageView
+            android:id="@+id/iv_play_pause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/media_play_image"/>
+            android:layout_weight="1"
+            android:clickable="true"
+            android:background="@drawable/pause_image"/>
 
         <ImageView
+            android:id="@+id/iv_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="true"
             android:background="@drawable/mediaplayer_next_image"/>
 
         <ImageView
+            android:id="@+id/iv_full_screen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="true"
             android:background="@drawable/mediaplayer_full_screen_image"/>
-
     </LinearLayout>
+
 </RelativeLayout>

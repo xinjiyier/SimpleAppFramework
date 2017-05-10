@@ -23,7 +23,8 @@
             android:name=".MainActivity"
             android:configChanges="screenSize|orientation|keyboard" />
         <activity android:name=".activity.ShoppingVideoPlayer"
-            android:configChanges="screenSize|orientation|keyboard" />
+            android:configChanges="screenSize|orientation|keyboard"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
     </application>
 
 </manifest>
