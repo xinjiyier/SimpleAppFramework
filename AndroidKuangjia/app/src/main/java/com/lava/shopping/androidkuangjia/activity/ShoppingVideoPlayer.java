@@ -10,18 +10,22 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 import com.lava.shopping.androidkuangjia.R;
 import com.lava.shopping.androidkuangjia.items.MediaItem;
 import com.lava.shopping.androidkuangjia.utils.TimeUtils;
+import com.lava.shopping.androidkuangjia.view.VideoView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -48,12 +52,43 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
     private ImageView ivPlayPause;
     private ImageView ivNext;
     private ImageView ivFullScreen;
+    private RelativeLayout rlMediaVideoController;
 
+    private GestureDetector gestureDetector;
     private TimeUtils timeUtils;
     private List<MediaItem> mediaItems;
+    /**
+     * 定义屏幕的长宽和视频的长宽
+     */
+    private int screenWidth;
+    private int screenHeigth;
+    private int mediaWidth;
+    private int mediaHeight;
+    /**
+     * 当前播放视频在list中的位置
+     */
     int mediaItemsPosition;
-
+    /**
+     * 当前播放视频是否是网络资源
+     */
+    boolean isWebVideo = false;
+    /**
+     * 当前视频控制界面是否显示
+     */
+    private boolean isMediaControllerVisiable;
+    /**
+     *
+     */
+    private boolean isFullScreen = false;
+    /**
+     *用于刷新视频进度信息
+     */
     private static final int SB_REFRESH = 0;
+    /**
+     * 用于让视频控制器隐藏
+     */
+    private static final int HIDE_MEDIA_CONTROLLER = 1;
+
 
     Handler handler = new Handler(){
         @Override
@@ -64,6 +99,9 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
                     refreshMediaSeekBar();
                     handler.removeMessages(SB_REFRESH);
                     handler.sendEmptyMessageDelayed(SB_REFRESH,1000);
+                    break;
+                case HIDE_MEDIA_CONTROLLER:
+                    hideMediaController();
                     break;
             }
         }
@@ -130,6 +168,7 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
     }
 
     private void findViews() {
+        rlMediaVideoController = (RelativeLayout) findViewById(R.id.rl_media_video_controller);
         /**
          * titleBar line views
          */
@@ -160,13 +199,22 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         ivPlayPause = (ImageView)findViewById( R.id.iv_play_pause );
         ivNext = (ImageView)findViewById( R.id.iv_next );
         ivFullScreen = (ImageView)findViewById( R.id.iv_full_screen );
+        /**
+         * 计算屏幕的长宽
+         */
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        screenWidth = dm.widthPixels;
+        screenHeigth = dm.heightPixels;
 
         setLastAndNextIconState(mediaItemsPosition);
+        hideMediaController();
     }
 
 
     private void init() {
         timeUtils = new TimeUtils();
+        gestureDetector = new GestureDetector(this,new MyGestureDetector());
         mVideoView = (VideoView) this.findViewById(R.id.media_vv);
         mVideoView.setOnCompletionListener(new OnMediaCompleted());
         mVideoView.setOnErrorListener(new OnMediaErrored());
@@ -193,7 +241,14 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         ivNext.setOnClickListener(this);
         ivFullScreen.setOnClickListener(this);
 
-        sbMediaDuration.setOnSeekBarChangeListener(new MySeekBarChangeListener());
+        sbMediaDuration.setOnSeekBarChangeListener(new MyDurationSeekBarChangeListener());
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        Log.d("chenxiaoping","onTouch");
+        return super.onTouchEvent(event);
     }
 
     @Override
@@ -204,6 +259,7 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
             case R.id.iv_switch_player:
                 break;
             case R.id.iv_return:
+                finish();
                 break;
             case R.id.iv_backward:
                 toLastVideo();
@@ -215,8 +271,10 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
                 toNextVideo();
                 break;
             case R.id.iv_full_screen:
+                setFullScreenOrDefault();
                 break;
         }
+        removeAndResendHideMessage();
     }
 
     private void toNextVideo() {
@@ -226,7 +284,8 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         }else{
             //就播放下一个视频
             mediaItemsPosition++;
-            mVideoView.setVideoURI(Uri.parse(mediaItems.get(mediaItemsPosition).getMediaData()));
+            //mVideoView.setVideoURI(Uri.parse(mediaItems.get(mediaItemsPosition).getMediaData()));
+            mVideoView.setVideoURI(getData(mediaItemsPosition));
             setLastAndNextIconState(mediaItemsPosition);
         }
         Toast.makeText(this, "mediaSize  "+mediaSize, Toast.LENGTH_SHORT).show();
@@ -255,7 +314,8 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         }else{
             //就播放上一个视频
             mediaItemsPosition--;
-            mVideoView.setVideoURI(Uri.parse(mediaItems.get(mediaItemsPosition).getMediaData()));
+            //mVideoView.setVideoURI(Uri.parse(mediaItems.get(mediaItemsPosition).getMediaData()));
+            mVideoView.setVideoURI(getData(mediaItemsPosition));
             setLastAndNextIconState(mediaItemsPosition);
         }
         Toast.makeText(this, "mediaSize  "+mediaSize, Toast.LENGTH_SHORT).show();
@@ -301,16 +361,23 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
 
         @Override
         public void onPrepared(MediaPlayer mediaPlayer) {
+            /**
+             * 计算视频的长宽
+             */
+            mediaWidth = mediaPlayer.getVideoWidth();
+            mediaHeight = mediaPlayer.getVideoHeight();
+
             int duration = mediaPlayer.getDuration();
             sbMediaDuration.setMax(duration);
             tvMediaDurationTotal.setText(new TimeUtils().stringForTime(duration));
             mediaPlayer.start();
             handler.sendEmptyMessage(SB_REFRESH);
             //tvMediaName.setText(mVideoView.get);
+            setAsDefaultScreen();
         }
     }
 
-    class MySeekBarChangeListener implements SeekBar.OnSeekBarChangeListener{
+    class MyDurationSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener{
         @Override
         public void onProgressChanged(SeekBar seekBar, int i, boolean fromUser) {
             Log.d("cxp","sadfasdfasdfas");
@@ -318,6 +385,7 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
                 mVideoView.seekTo(i);
                 sbMediaDuration.setProgress(i);
                 handler.sendEmptyMessage(SB_REFRESH);
+                removeAndResendHideMessage();
             }
         }
 
@@ -330,6 +398,90 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         public void onStopTrackingTouch(SeekBar seekBar) {
             //进度条人为触摸结束
         }
+    }
+
+    class MyGestureDetector extends GestureDetector.SimpleOnGestureListener{
+        public MyGestureDetector() {
+            super();
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Toast.makeText(ShoppingVideoPlayer.this,"长按事件",Toast.LENGTH_SHORT).show();
+            super.onLongPress(e);
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            Toast.makeText(ShoppingVideoPlayer.this,"双击事件",Toast.LENGTH_SHORT).show();
+            return super.onDoubleTap(e);
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Toast.makeText(ShoppingVideoPlayer.this,"单击事件",Toast.LENGTH_SHORT).show();
+            if(!isMediaControllerVisiable){
+                displayMediaController();
+            }
+            return super.onSingleTapConfirmed(e);
+        }
+    }
+
+    private void displayMediaController(){
+        isMediaControllerVisiable = true;
+        rlMediaVideoController.setVisibility(View.VISIBLE);
+        removeAndResendHideMessage();
+    }
+
+    private void hideMediaController(){
+        isMediaControllerVisiable = false;
+        rlMediaVideoController.setVisibility(View.GONE);
+    }
+
+    private void removeAndResendHideMessage(){
+        handler.removeMessages(HIDE_MEDIA_CONTROLLER);
+        handler.sendEmptyMessageDelayed(HIDE_MEDIA_CONTROLLER,4000);
+    }
+
+    /**
+     * 该方法用于全屏和适应屏幕大小切换
+     */
+    private void setFullScreenOrDefault(){
+        if(isFullScreen){
+            setAsDefaultScreen();
+        }else{
+            setAsFullScreen();
+        }
+    }
+
+    private void setAsDefaultScreen() {
+        //当前是全屏
+        //根据视频的长宽和屏幕的长宽来计算
+        //视频应该显示的长宽
+        /**
+         * 计算应有的长宽
+         */
+        int width = screenWidth;
+        int height = screenHeigth;
+        int mVideoWidth = mediaWidth;
+        int mVideoHeight = mediaHeight;
+
+        if (mVideoWidth * height < width * mVideoHeight) {
+            //Log.i("@@@", "image too wide, correcting");
+            width = height * mVideoWidth / mVideoHeight;
+        } else if (mVideoWidth * height > width * mVideoHeight) {
+            //Log.i("@@@", "image too tall, correcting");
+            height = width * mVideoHeight / mVideoWidth;
+        }
+        mVideoView.setVideoSize(width,height);
+        isFullScreen = false;
+    }
+
+    private void setAsFullScreen() {
+        //当前不是全屏
+        //设置为全屏
+        mVideoView.setVideoSize(screenWidth,screenHeigth);
+        isFullScreen = true;
     }
 
     @Override

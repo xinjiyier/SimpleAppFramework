@@ -5,12 +5,14 @@
     android:layout_height="match_parent"
     tools:context="com.lava.shopping.androidkuangjia.activity.ShoppingVideoPlayer">
 
-    <VideoView
+    <com.lava.shopping.androidkuangjia.view.VideoView
         android:id="@+id/media_vv"
         android:layout_centerInParent="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <include layout="@layout/media_controller"></include>
+    <include
+        android:id="@+id/rl_media_video_controller"
+        layout="@layout/media_controller"></include>
 
 </RelativeLayout>
