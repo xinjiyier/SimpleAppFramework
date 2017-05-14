@@ -15,4 +15,8 @@
         android:id="@+id/rl_media_video_controller"
         layout="@layout/media_controller"></include>
 
+    <include
+        android:id="@+id/rl_catch"
+        layout="@layout/rl_catch_pb"></include>
+
 </RelativeLayout>

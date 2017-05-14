@@ -18,7 +18,8 @@ public class MyTaoBaoFragment extends BaseFragment{
         textView = new TextView(mContext);
         textView.setGravity(Gravity.CENTER);
         textView.setTextSize(20);
-        textView.setTextColor(getResources().getColor(R.color.framework_text_color,null));
+        //textView.setTextColor(getResources().getColor(R.color.framework_text_color,null));
+        textView.setTextColor(getResources().getColorStateList(R.color.framework_text_color));
         return textView;
     }
 

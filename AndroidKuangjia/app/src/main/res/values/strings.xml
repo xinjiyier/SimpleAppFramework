@@ -8,4 +8,15 @@
     <string name="chawuliu">查物流</string>
     <string name="search_in_all">全网搜索</string>
     <string name="no_video">没有找到视频资源</string>
+    <string name="my_app_name">Shopping影音</string>
+    <string name="catch_text">拼命加载中...</string>
+    <string name="vitmiao_videoplayer">万能播放器</string>
+
+    <string name="xlistview_header_hint_normal">下拉刷新</string>
+    <string name="xlistview_header_hint_ready">松开刷新数据</string>
+    <string name="xlistview_header_hint_loading">正在加载...</string>
+    <string name="xlistview_header_last_time">上次更新时间：</string>
+    <string name="xlistview_footer_hint_normal">查看更多</string>
+    <string name="xlistview_footer_hint_ready">松开载入更多</string>
+    <string name="buffing_text">玩命加载中...</string>
 </resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.lava.shopping.androidkuangjia.view.XListView
+        android:id="@+id/xlv_media_data"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <include
+        android:id="@+id/rl_buffing"
+        layout="@layout/buffering_layout"></include>
+</RelativeLayout>

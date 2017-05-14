@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.lava.shopping.androidkuangjia.activity.ShoppingVideoPlayer">
+
+    <io.vov.vitamio.widget.VideoView
+        android:id="@+id/media_vv"
+        android:layout_centerInParent="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <include
+        android:id="@+id/rl_media_video_controller"
+        layout="@layout/media_controller"></include>
+
+    <include
+        android:id="@+id/rl_catch"
+        layout="@layout/rl_catch_pb"></include>
+
+</RelativeLayout>

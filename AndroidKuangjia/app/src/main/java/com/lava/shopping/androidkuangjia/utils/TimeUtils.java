@@ -3,6 +3,11 @@ package com.lava.shopping.androidkuangjia.utils;
 import android.content.Context;
 import android.net.TrafficStats;
 
+import java.text.DateFormat;
+import java.text.FieldPosition;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Formatter;
 import java.util.Locale;
 
@@ -79,5 +84,12 @@ public class TimeUtils {
         return  netSpeed;
     }
 
-
+    /**
+     * 获取系统当前时间
+     */
+    public String getCurrentTime(){
+        Date date = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        return  dateFormat.format(date);
+    }
 }

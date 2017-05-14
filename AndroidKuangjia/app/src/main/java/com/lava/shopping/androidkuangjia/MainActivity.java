@@ -113,7 +113,7 @@ public class MainActivity extends FragmentActivity {
     private void initFragment() {
         mBaseFragment = new ArrayList<>();
         mBaseFragment.add(new ZhuYeFragment(MainActivity.this));
-        mBaseFragment.add(new WeiTaoFragment());
+        mBaseFragment.add(new WeiTaoFragment(MainActivity.this));
         mBaseFragment.add(new MyTaoBaoFragment());
         mBaseFragment.add(new GouWuCheFragment());
         mBaseFragment.add(new ChaWuLiuFragment());

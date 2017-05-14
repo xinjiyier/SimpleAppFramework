@@ -12,6 +12,24 @@ public class MediaItem implements Serializable{
     private long mediaDuration;
     private String mediaArtist;
     private String mediaData;//文件的绝对地址
+    private String mediaImage;
+    private String mediaHighData;
+
+    public String getMediaImage() {
+        return mediaImage;
+    }
+
+    public void setMediaImage(String mediaImage) {
+        this.mediaImage = mediaImage;
+    }
+
+    public String getMediaHighData() {
+        return mediaHighData;
+    }
+
+    public void setMediaHighData(String mediaHighData) {
+        this.mediaHighData = mediaHighData;
+    }
 
     public String getMediaName() {
         return mediaName;
@@ -59,6 +77,8 @@ public class MediaItem implements Serializable{
                 mediaData+"  "+
                 mediaArtist+"  "+
                 mediaDuration+"  "+
-                mediaSize;
+                mediaSize+"  "+
+                mediaImage+"  "+
+                mediaHighData+"  ";
     }
 }

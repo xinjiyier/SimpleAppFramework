@@ -1,0 +1,38 @@
+[
+    {
+        "merged": "F:\\Android_studio\\workspace\\AndroidKuangjia\\vitamio\\build\\intermediates\\res\\merged\\debug\\color\\abc_primary_text_material_dark.xml",
+        "source": "C:\\Users\\Administrator\\.android\\build-cache\\f434d58f033560c7d631155eff2b8cecfd26863b\\output\\res\\color\\abc_primary_text_material_dark.xml"
+    },
+    {
+        "merged": "F:\\Android_studio\\workspace\\AndroidKuangjia\\vitamio\\build\\intermediates\\res\\merged\\debug\\color\\abc_primary_text_material_light.xml",
+        "source": "C:\\Users\\Administrator\\.android\\build-cache\\f434d58f033560c7d631155eff2b8cecfd26863b\\output\\res\\color\\abc_primary_text_material_light.xml"
+    },
+    {
+        "merged": "F:\\Android_studio\\workspace\\AndroidKuangjia\\vitamio\\build\\intermediates\\res\\merged\\debug\\color\\abc_secondary_text_material_light.xml",
+        "source": "C:\\Users\\Administrator\\.android\\build-cache\\f434d58f033560c7d631155eff2b8cecfd26863b\\output\\res\\color\\abc_secondary_text_material_light.xml"
+    },
+    {
+        "merged": "F:\\Android_studio\\workspace\\AndroidKuangjia\\vitamio\\build\\intermediates\\res\\merged\\debug\\color\\abc_search_url_text.xml",
+        "source": "C:\\Users\\Administrator\\.android\\build-cache\\f434d58f033560c7d631155eff2b8cecfd26863b\\output\\res\\color\\abc_search_url_text.xml"
+    },
+    {
+        "merged": "F:\\Android_studio\\workspace\\AndroidKuangjia\\vitamio\\build\\intermediates\\res\\merged\\debug\\color\\switch_thumb_material_dark.xml",
+        "source": "C:\\Users\\Administrator\\.android\\build-cache\\f434d58f033560c7d631155eff2b8cecfd26863b\\output\\res\\color\\switch_thumb_material_dark.xml"
+    },
+    {
+        "merged": "F:\\Android_studio\\workspace\\AndroidKuangjia\\vitamio\\build\\intermediates\\res\\merged\\debug\\color\\switch_thumb_material_light.xml",
+        "source": "C:\\Users\\Administrator\\.android\\build-cache\\f434d58f033560c7d631155eff2b8cecfd26863b\\output\\res\\color\\switch_thumb_material_light.xml"
+    },
+    {
+        "merged": "F:\\Android_studio\\workspace\\AndroidKuangjia\\vitamio\\build\\intermediates\\res\\merged\\debug\\color\\abc_secondary_text_material_dark.xml",
+        "source": "C:\\Users\\Administrator\\.android\\build-cache\\f434d58f033560c7d631155eff2b8cecfd26863b\\output\\res\\color\\abc_secondary_text_material_dark.xml"
+    },
+    {
+        "merged": "F:\\Android_studio\\workspace\\AndroidKuangjia\\vitamio\\build\\intermediates\\res\\merged\\debug\\color\\abc_primary_text_disable_only_material_dark.xml",
+        "source": "C:\\Users\\Administrator\\.android\\build-cache\\f434d58f033560c7d631155eff2b8cecfd26863b\\output\\res\\color\\abc_primary_text_disable_only_material_dark.xml"
+    },
+    {
+        "merged": "F:\\Android_studio\\workspace\\AndroidKuangjia\\vitamio\\build\\intermediates\\res\\merged\\debug\\color\\abc_primary_text_disable_only_material_light.xml",
+        "source": "C:\\Users\\Administrator\\.android\\build-cache\\f434d58f033560c7d631155eff2b8cecfd26863b\\output\\res\\color\\abc_primary_text_disable_only_material_light.xml"
+    }
+]

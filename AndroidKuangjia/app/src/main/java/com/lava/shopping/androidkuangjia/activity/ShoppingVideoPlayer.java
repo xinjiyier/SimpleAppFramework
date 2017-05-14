@@ -5,18 +5,22 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
+import android.support.v7.widget.DialogTitle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -24,9 +28,11 @@ import android.widget.Toast;
 
 import com.lava.shopping.androidkuangjia.R;
 import com.lava.shopping.androidkuangjia.items.MediaItem;
+import com.lava.shopping.androidkuangjia.utils.MediaUtils;
 import com.lava.shopping.androidkuangjia.utils.TimeUtils;
 import com.lava.shopping.androidkuangjia.view.VideoView;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -52,10 +58,14 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
     private ImageView ivPlayPause;
     private ImageView ivNext;
     private ImageView ivFullScreen;
+    private TextView tvInternetSpeed;
+    private RelativeLayout pbCatch;
     private RelativeLayout rlMediaVideoController;
 
     private GestureDetector gestureDetector;
+    private AudioManager audioManager;
     private TimeUtils timeUtils;
+    private MediaUtils mediaUtils;
     private List<MediaItem> mediaItems;
     /**
      * 定义屏幕的长宽和视频的长宽
@@ -80,6 +90,7 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
      *
      */
     private boolean isFullScreen = false;
+    private boolean isCatching = false;
     /**
      *用于刷新视频进度信息
      */
@@ -97,6 +108,16 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
             switch (msg.what){
                 case SB_REFRESH:
                     refreshMediaSeekBar();
+                    if(isWebVideo){
+                        refreshBufferProgress();
+                    }
+                    /**
+                     * 如果视频出现卡顿
+                     * 则显示当前网速
+                     */
+                    if(isCatching){
+                        refreshInternetSpeed();
+                    }
                     handler.removeMessages(SB_REFRESH);
                     handler.sendEmptyMessageDelayed(SB_REFRESH,1000);
                     break;
@@ -106,6 +127,9 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
             }
         }
     };
+    private int maxVolume;
+    private int currentVolume;
+    private boolean isSlience = false;
 
     private void refreshSystemTime() {
         SimpleDateFormat format = new SimpleDateFormat("hh:mm");
@@ -154,6 +178,36 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         sbMediaDuration.setProgress(current);
     }
 
+    /**
+     * 用于更新调节音量的seekbar的状态
+     */
+    private void refeshAudioSeekbar(boolean isSlience,int currentVolume){
+        displayMediaController();
+        if(isSlience){
+            sbMediaVoice.setProgress(0);
+        }else{
+            //currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+            sbMediaVoice.setProgress(currentVolume);
+        }
+    }
+
+    /**
+     * 如果是网络视频，则显示缓存进度
+     */
+    private void refreshBufferProgress(){
+        int buffer = mVideoView.getBufferPercentage();
+        int totalBuffer = buffer * sbMediaDuration.getMax();
+        int secondaryProcess = totalBuffer/100;
+        sbMediaDuration.setSecondaryProgress(secondaryProcess);
+    }
+
+    /**
+     * 当卡顿的时候，进行更新网络速度
+     * 以告知客户
+     */
+    private void refreshInternetSpeed(){
+        tvInternetSpeed.setText(mediaUtils.getCurrentInternetSpeed(this));
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -167,13 +221,14 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         refreshSystemTime();
     }
 
-    private void findViews() {
+    private void initViews() {
         rlMediaVideoController = (RelativeLayout) findViewById(R.id.rl_media_video_controller);
+        pbCatch = (RelativeLayout) findViewById(R.id.rl_catch);
+        tvInternetSpeed = (TextView) findViewById(R.id.tv_internet_speed);
         /**
          * titleBar line views
          */
         llMediaplayerTitlebarLine = (LinearLayout)findViewById( R.id.ll_mediaplayer_titlebar_line );
-        tvMediaName = (TextView)findViewById( R.id.tv_media_name );
         ivMediaBattery = (ImageView)findViewById( R.id.iv_media_battery );
         tvSystemTime = (TextView)findViewById( R.id.tv_system_time );
         /**
@@ -207,28 +262,44 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         screenWidth = dm.widthPixels;
         screenHeigth = dm.heightPixels;
 
+        initOtherData();
+    }
+
+    private void initOtherData() {
+        /**
+         * 更新上一个和下一个视频的按钮
+         * 隐藏控制栏
+         * 初始化并更新音量条的数据
+         */
+        maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        sbMediaVoice.setMax(maxVolume);
+        setMediaName();
         setLastAndNextIconState(mediaItemsPosition);
         hideMediaController();
+        refeshAudioSeekbar(isSlience,audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
     }
 
 
     private void init() {
         timeUtils = new TimeUtils();
-        gestureDetector = new GestureDetector(this,new MyGestureDetector());
-        mVideoView = (VideoView) this.findViewById(R.id.media_vv);
-        mVideoView.setOnCompletionListener(new OnMediaCompleted());
-        mVideoView.setOnErrorListener(new OnMediaErrored());
-        mVideoView.setOnPreparedListener(new OnMediaPrepared());
+        mediaUtils = new MediaUtils();
         mediaItemsPosition = getIntent().getIntExtra("position",0);
+        gestureDetector = new GestureDetector(this,new MyGestureDetector());
+        audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        mVideoView = (VideoView) this.findViewById(R.id.media_vv);
+        tvMediaName = (TextView)findViewById( R.id.tv_media_name );
         if(mVideoView!=null){
             mVideoView.setVideoURI(getData(mediaItemsPosition));
         }
+        mVideoView.setOnCompletionListener(new OnMediaCompleted());
+        mVideoView.setOnErrorListener(new OnMediaErrored());
+        mVideoView.setOnPreparedListener(new OnMediaPrepared());
         //mVideoView.setMediaController(new MediaController(ShoppingVideoPlayer.this));
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_BATTERY_CHANGED);
         filter.addAction(Intent.ACTION_TIME_TICK);
         registerReceiver(receiver,filter);
-        findViews();
+        initViews();
         initListener();
     }
 
@@ -242,13 +313,42 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         ivFullScreen.setOnClickListener(this);
 
         sbMediaDuration.setOnSeekBarChangeListener(new MyDurationSeekBarChangeListener());
+        sbMediaVoice.setOnSeekBarChangeListener(new MyVoiceSeekBarChangeListener());
+        mVideoView.setOnInfoListener(new MyOnInfoListener());
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         gestureDetector.onTouchEvent(event);
-        Log.d("chenxiaoping","onTouch");
         return super.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        super.onKeyDown(keyCode, event);
+        switch (keyCode){
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                if(currentVolume > 0){
+                    currentVolume --;
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,currentVolume,0);
+                    refeshAudioSeekbar(false,currentVolume);
+                }else if(currentVolume==0){
+                    isSlience = true;
+                }
+                return true;
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                isSlience = false;
+                if(currentVolume < maxVolume){
+                    currentVolume ++;
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC,currentVolume,0);
+                    refeshAudioSeekbar(false,currentVolume);
+                }
+                return true;
+            case KeyEvent.KEYCODE_BACK:
+                finish();
+                break;
+        }
+        return false;
     }
 
     @Override
@@ -257,6 +357,7 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
             case R.id.iv_voice_silence:
                 break;
             case R.id.iv_switch_player:
+                startVitmiaoPlayer();
                 break;
             case R.id.iv_return:
                 finish();
@@ -292,17 +393,22 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
     }
 
     private void setLastAndNextIconState(int position) {
-        int mediaSize = mediaItems.size();
-        ivNext.setEnabled(true);
-        ivBackward.setEnabled(true);
-        if(++position > (mediaSize-1)){
-            //当前为倒数第一个
-            Log.d("ccc","当前为倒数第一个");
+        if(mediaItems!=null && mediaItems.size() > 0){
+            ivNext.setEnabled(true);
+            ivBackward.setEnabled(true);
+            int mediaSize = mediaItems.size();
+            if(++position > (mediaSize-1)){
+                //当前为倒数第一个
+                Log.d("ccc","当前为倒数第一个");
+                ivNext.setEnabled(false);
+            }
+            if((position-2) < 0){
+                //当前为第一个
+                Log.d("ccc","当前为第一个");
+                ivBackward.setEnabled(false);
+            }
+        }else{
             ivNext.setEnabled(false);
-        }
-        if((position-2) < 0){
-            //当前为第一个
-            Log.d("ccc","当前为第一个");
             ivBackward.setEnabled(false);
         }
     }
@@ -335,17 +441,33 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         Uri uri;
         mediaItems = (List<MediaItem>) getIntent().getSerializableExtra("videolist");
         if(mediaItems != null && mediaItems.size() > 0){
+            Log.d("chenxiaoping","mediaItemsPosition  "+ mediaItemsPosition+"name := "+mediaItems.get(mediaItemsPosition).getMediaData());
             uri = Uri.parse(mediaItems.get(mediaItemsPosition).getMediaData());
         }else{
             uri = getIntent().getData();
         }
+        if(mediaUtils.isWebVideo(uri)){
+            isWebVideo = true;
+        }
+        setMediaName();
         return uri;
+    }
+
+    /**
+     * 为视频名字 字段赋值
+     */
+    private void setMediaName(){
+        if(mediaItems!=null&&mediaItems.size()>0){
+            tvMediaName.setText(mediaItems.get(mediaItemsPosition).getMediaName());
+        }else{
+            tvMediaName.setText(getIntent().getData().toString());
+        }
     }
 
     class OnMediaCompleted implements MediaPlayer.OnCompletionListener {
         @Override
         public void onCompletion(MediaPlayer mediaPlayer) {
-            Toast.makeText(ShoppingVideoPlayer.this,"",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(ShoppingVideoPlayer.this,"",Toast.LENGTH_SHORT).show();
             refeshPlayAndPauseIcon();
         }
     }
@@ -353,8 +475,25 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
     class OnMediaErrored implements MediaPlayer.OnErrorListener{
         @Override
         public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+            startVitmiaoPlayer();
             return false;
         }
+    }
+
+    private void startVitmiaoPlayer() {
+        Intent intent = new Intent(ShoppingVideoPlayer.this,VitMiaoVideoPlayer.class);
+        if(mediaItems!=null && mediaItems.size() >0){
+            intent.putExtra("mediaName",mediaItems.get(mediaItemsPosition).getMediaName());
+            //intent.setDataAndType(Uri.parse(mediaItems.get(position).getMediaData()),"video/*");
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("videolist", (Serializable) mediaItems);
+            intent.putExtras(bundle);
+            intent.putExtra("position",mediaItemsPosition);
+        }else{
+            intent.setData(getData(0));
+        }
+        startActivity(intent);
+        finish();
     }
 
     class OnMediaPrepared implements MediaPlayer.OnPreparedListener{
@@ -377,10 +516,12 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         }
     }
 
+    /**
+     * 手动拖动视频进度监听
+     */
     class MyDurationSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener{
         @Override
         public void onProgressChanged(SeekBar seekBar, int i, boolean fromUser) {
-            Log.d("cxp","sadfasdfasdfas");
             if(fromUser){
                 mVideoView.seekTo(i);
                 sbMediaDuration.setProgress(i);
@@ -400,6 +541,29 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         }
     }
 
+    /**
+     * 手动音量调节监听
+     */
+    class MyVoiceSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            //当拖动音量调节，改变音量的时候，对系统音量进行同步更新
+            if(fromUser){
+                //当只有是人为拖动的时候才会改变
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
+        }
+    }
+
     class MyGestureDetector extends GestureDetector.SimpleOnGestureListener{
         public MyGestureDetector() {
             super();
@@ -407,26 +571,45 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
 
         @Override
         public void onLongPress(MotionEvent e) {
-            Toast.makeText(ShoppingVideoPlayer.this,"长按事件",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(ShoppingVideoPlayer.this,"长按事件",Toast.LENGTH_SHORT).show();
             super.onLongPress(e);
         }
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            Toast.makeText(ShoppingVideoPlayer.this,"双击事件",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(ShoppingVideoPlayer.this,"双击事件",Toast.LENGTH_SHORT).show();
             return super.onDoubleTap(e);
         }
 
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
-            Toast.makeText(ShoppingVideoPlayer.this,"单击事件",Toast.LENGTH_SHORT).show();
+            //Toast.makeText(ShoppingVideoPlayer.this,"单击事件",Toast.LENGTH_SHORT).show();
             if(!isMediaControllerVisiable){
                 displayMediaController();
+            }else{
+                handler.removeMessages(HIDE_MEDIA_CONTROLLER);
+                hideMediaController();
             }
             return super.onSingleTapConfirmed(e);
         }
     }
 
+    class MyOnInfoListener implements MediaPlayer.OnInfoListener {
+        @Override
+        public boolean onInfo(MediaPlayer mp, int what, int extra) {
+            switch (what){
+                case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                    isCatching = true;
+                    pbCatch.setVisibility(View.VISIBLE);
+                    break;
+                case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                    isCatching = false;
+                    pbCatch.setVisibility(View.GONE);
+                    break;
+            }
+            return false;
+        }
+    }
     private void displayMediaController(){
         isMediaControllerVisiable = true;
         rlMediaVideoController.setVisibility(View.VISIBLE);
