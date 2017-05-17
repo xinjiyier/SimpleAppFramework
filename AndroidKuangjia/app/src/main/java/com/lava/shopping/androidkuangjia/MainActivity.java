@@ -1,7 +1,6 @@
 package com.lava.shopping.androidkuangjia;
 
 import android.support.annotation.IdRes;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -14,7 +13,7 @@ import com.lava.shopping.androidkuangjia.fragment.ChaWuLiuFragment;
 import com.lava.shopping.androidkuangjia.fragment.GouWuCheFragment;
 import com.lava.shopping.androidkuangjia.fragment.MyTaoBaoFragment;
 import com.lava.shopping.androidkuangjia.fragment.WeiTaoFragment;
-import com.lava.shopping.androidkuangjia.fragment.ZhuYeFragment;
+import com.lava.shopping.androidkuangjia.fragment.IndexFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,9 +111,9 @@ public class MainActivity extends FragmentActivity {
 
     private void initFragment() {
         mBaseFragment = new ArrayList<>();
-        mBaseFragment.add(new ZhuYeFragment(MainActivity.this));
+        mBaseFragment.add(new IndexFragment(MainActivity.this));
         mBaseFragment.add(new WeiTaoFragment(MainActivity.this));
-        mBaseFragment.add(new MyTaoBaoFragment());
+        mBaseFragment.add(new MyTaoBaoFragment(MainActivity.this));
         mBaseFragment.add(new GouWuCheFragment());
         mBaseFragment.add(new ChaWuLiuFragment());
     }

@@ -21,7 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.lava.shopping.androidkuangjia.R;
-import com.lava.shopping.androidkuangjia.activity.ShoppingMusicPlayer;
 import com.lava.shopping.androidkuangjia.activity.ShoppingVideoPlayer;
 import com.lava.shopping.androidkuangjia.base.BaseFragment;
 import com.lava.shopping.androidkuangjia.items.MediaItem;
@@ -36,7 +35,7 @@ import java.util.List;
  */
 
 @SuppressLint("ValidFragment")
-public class MyTaoBaoFragment extends BaseFragment{
+public class IndexFragment extends BaseFragment{
     private ListView videoLv;
     private ProgressBar videoPb;
     private TextView videoTv;
@@ -64,7 +63,7 @@ public class MyTaoBaoFragment extends BaseFragment{
     };
 
     @SuppressLint("ValidFragment")
-    public MyTaoBaoFragment(Context context){
+    public IndexFragment(Context context){
         this.mContext = context;
     }
 
@@ -95,13 +94,13 @@ public class MyTaoBaoFragment extends BaseFragment{
                 super.run();
                 ContentResolver resolver = mContext.getContentResolver();
                 String[] objs = new String[]{
-                        MediaStore.Audio.Media.DISPLAY_NAME,//视频的名字
-                        MediaStore.Audio.Media.DURATION,//视频的长度
-                        MediaStore.Audio.Media.SIZE,//视频的大小
-                        MediaStore.Audio.Media.DATA,//在sd卡的绝对地址
-                        MediaStore.Audio.Media.ARTIST//艺术家
+                        MediaStore.Video.Media.DISPLAY_NAME,//视频的名字
+                        MediaStore.Video.Media.DURATION,//视频的长度
+                        MediaStore.Video.Media.SIZE,//视频的大小
+                        MediaStore.Video.Media.DATA,//在sd卡的绝对地址
+                        MediaStore.Video.Media.ARTIST//艺术家
                 };
-                Cursor cursor = resolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,objs,null,null,null);
+                Cursor cursor = resolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,objs,null,null,null);
                 if(cursor != null){
                     while (cursor.moveToNext()){
                         MediaItem item = new MediaItem();
@@ -165,7 +164,7 @@ public class MyTaoBaoFragment extends BaseFragment{
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Toast.makeText(mContext,mediaItems.get(position).toString(),Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(mContext,ShoppingMusicPlayer.class);
+            Intent intent = new Intent(mContext,ShoppingVideoPlayer.class);
             intent.putExtra("mediaName",mediaItems.get(position).getMediaName());
             //intent.setDataAndType(Uri.parse(mediaItems.get(position).getMediaData()),"video/*");
             Bundle bundle = new Bundle();

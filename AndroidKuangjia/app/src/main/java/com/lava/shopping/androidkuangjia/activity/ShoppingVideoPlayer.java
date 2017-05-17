@@ -289,6 +289,10 @@ public class ShoppingVideoPlayer extends Activity implements View.OnClickListene
         mVideoView = (VideoView) this.findViewById(R.id.media_vv);
         tvMediaName = (TextView)findViewById( R.id.tv_media_name );
         if(mVideoView!=null){
+            /**
+             * 在 videoView 中由于封装了 MediaPlayer ，
+             * 所以我们在执行setVideoURI 之后系统就开始准备播放了
+             */
             mVideoView.setVideoURI(getData(mediaItemsPosition));
         }
         mVideoView.setOnCompletionListener(new OnMediaCompleted());
