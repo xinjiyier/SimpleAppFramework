@@ -36,27 +36,6 @@
             android:textSize="13sp"
             android:text="作者"/>
     </LinearLayout>
-
-<!--        <TextView
-            android:id="@+id/tv_music_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="00:00/00:00"
-            android:layout_alignTop="@+id/sb_music_progress"
-            android:layout_alignParentEnd="true"
-            />-->
-        <SeekBar
-            android:id="@+id/sb_music_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/ll_music_controller"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="100dp"
-            android:maxHeight="6dp"
-            android:minHeight="6dp"
-            android:thumb="@drawable/progress_thumb"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp" />
     <LinearLayout
         android:id="@+id/ll_music_controller"
         android:layout_width="match_parent"
@@ -99,4 +78,26 @@
             android:enabled="false"
             android:layout_weight="1"/>
     </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/sb_music_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ll_music_controller"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:maxHeight="6dp"
+        android:minHeight="6dp"
+        android:thumb="@drawable/progress_thumb"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        />
+
+    <TextView
+        android:id="@+id/tv_music_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="00:00/00:00"
+        android:layout_above="@+id/sb_music_progress"
+        android:layout_alignParentEnd="true" />
 </RelativeLayout>

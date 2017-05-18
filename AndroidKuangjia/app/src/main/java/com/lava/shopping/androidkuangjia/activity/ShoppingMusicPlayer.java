@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.lava.shopping.androidkuangjia.IMyMusicPlayerService;
@@ -24,12 +25,15 @@ import com.lava.shopping.androidkuangjia.IMyMusicPlayerServiceCallBack;
 import com.lava.shopping.androidkuangjia.items.MediaItem;
 import com.lava.shopping.androidkuangjia.service.MyMusicPlayerService;
 import com.lava.shopping.androidkuangjia.R;
+import com.lava.shopping.androidkuangjia.utils.TimeUtils;
 
 import java.util.List;
 
 public class ShoppingMusicPlayer extends Activity implements View.OnClickListener{
     private TextView tvMusicName;
     private TextView tvMusicArtist;
+    private TextView tvMusicProgress;
+    private SeekBar sbMusicProgress;
     private ImageView ivMusicImageBg;
     private Button btChangeMode;
     private Button btPlayPre;
@@ -37,18 +41,37 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
     private Button btPalyNext;
     private Button btShowLyric;
 
+    private StringBuffer sBuffer = new StringBuffer();
+    private TimeUtils utils;
     private IMyMusicPlayerService mService;
     private List<MediaItem> mediaItems;
+    private MediaItem mediaItem;
     private int mediaItemsPosition = 0 ;
     private boolean isBind = false;
     private boolean isServicePrepared = false;
+
+    private static final int BUTTON_ENABLE = 0;
+    private static final int INIT_MUSIC_STABLE_DATA = 1;
+    private static final int INIT_MUSIC_CHANGING_DATA = 2;
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            setButtonsEnable(true);
+            switch (msg.what){
+                case BUTTON_ENABLE:
+                    setButtonsEnable(true);
+                    break;
+                case INIT_MUSIC_STABLE_DATA:
+                    initMusicStableData();
+                    break;
+                case INIT_MUSIC_CHANGING_DATA:
+                    initMusicChangingData();
+                    handler.sendEmptyMessageDelayed(INIT_MUSIC_CHANGING_DATA,1000);
+                    break;
+            }
         }
     };
+
     private ServiceConnection conn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
@@ -62,7 +85,6 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
                 e.printStackTrace();
             }
         }
-
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             isBind = false;
@@ -83,10 +105,46 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
         public void Dataompleted() throws RemoteException {
             Log.d("xxx","dataComplete 1111111111");
             //preparePlayMusic();
-            handler.sendEmptyMessage(0);
+            handler.sendEmptyMessage(BUTTON_ENABLE);
+            handler.sendEmptyMessage(INIT_MUSIC_STABLE_DATA);
+            handler.sendEmptyMessage(INIT_MUSIC_CHANGING_DATA);
         }
     };
 
+    /**
+     * 加载界面中不变的值（歌名，歌手,以及seekbar的最大值）
+     */
+    private void initMusicStableData(){
+        mediaItem = mediaItems.get(mediaItemsPosition);
+        try {
+            if(mediaItem!=null){
+                tvMusicName.setText(mediaItem.getMediaName());
+                tvMusicArtist.setText(mediaItem.getMediaArtist());
+                sbMusicProgress.setMax(mService.getMusicDuration());
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 加载界面中随着歌曲不断变化的值
+     * 比如说歌曲进度
+     */
+    private void initMusicChangingData() {
+        try {
+            if(mService!=null){
+                sBuffer.setLength(0);
+                sBuffer.append(utils.stringForTime(mService.getMusicCurrentPosition()));
+                sBuffer.append("/");
+                sBuffer.append(utils.stringForTime(mService.getMusicDuration()));
+                sbMusicProgress.setProgress(mService.getMusicCurrentPosition());
+                tvMusicProgress.setText(sBuffer);
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
     private void setButtonsEnable(boolean isEnable) {
         btChangeMode.setEnabled(isEnable);
         btPlayPre.setEnabled(isEnable);
@@ -116,6 +174,8 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
     private void initViews() {
         tvMusicName = (TextView)findViewById( R.id.tv_music_name );
         tvMusicArtist = (TextView)findViewById( R.id.tv_music_artist );
+        tvMusicProgress = (TextView) findViewById(R.id.tv_music_progress);
+        sbMusicProgress = (SeekBar) findViewById(R.id.sb_music_progress);
         btChangeMode = (Button)findViewById( R.id.bt_change_mode );
         btPlayPre = (Button)findViewById( R.id.bt_play_pre );
         btPalyAndPause = (Button)findViewById( R.id.bt_paly_and_pause );
@@ -132,11 +192,13 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
         btPalyAndPause.setOnClickListener( this );
         btPalyNext.setOnClickListener( this );
         btShowLyric.setOnClickListener( this );
-
+        sbMusicProgress.setOnSeekBarChangeListener(new MyOnSeekBarChangeListener());
     }
 
     private void initDatas() {
+        utils = new TimeUtils();
         mediaItemsPosition = getIntent().getIntExtra("position",0);
+        getData(mediaItemsPosition);
     }
 
     public Uri getData(int position) {
@@ -189,6 +251,29 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
             // Handle clicks for btPalyNext
         } else if ( v == btShowLyric ) {
             // Handle clicks for btShowLyric
+        }
+    }
+
+    class MyOnSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener{
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if(fromUser){
+                try {
+                    mService.seekToProgress(progress);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
         }
     }
 }

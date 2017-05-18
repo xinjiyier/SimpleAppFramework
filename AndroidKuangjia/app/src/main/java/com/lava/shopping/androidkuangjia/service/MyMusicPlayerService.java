@@ -141,6 +141,21 @@ public class MyMusicPlayerService extends Service {
         }
 
         @Override
+        public int getMusicCurrentPosition() throws RemoteException {
+            return service.getMusicCurrentPosition();
+        }
+
+        @Override
+        public int getMusicDuration() throws RemoteException {
+            return service.getMusicDuration();
+        }
+
+        @Override
+        public void seekToProgress(int pro) throws RemoteException {
+            service.seekToProgress(pro);
+        }
+
+        @Override
         public void registerCallback(IMyMusicPlayerServiceCallBack callback) throws RemoteException {
             service.registerCallback(callback);
         }
@@ -271,6 +286,33 @@ public class MyMusicPlayerService extends Service {
         if(callback!=null){
             callbackList.unregister(callback);
         }
+    }
+
+    /**
+     * 获取音乐当前位置
+     * @return
+     * @throws RemoteException
+     */
+    public int getMusicCurrentPosition() throws RemoteException {
+        return myMediaPlayer.getCurrentPosition();
+    }
+
+    /**
+     * 获取音乐长度
+     * @return
+     * @throws RemoteException
+     */
+    public int getMusicDuration() throws RemoteException {
+        return myMediaPlayer.getDuration();
+    }
+
+    /**
+     * 手动调节进度条时调整歌曲进度
+     * @param pro
+     * @throws RemoteException
+     */
+    public void seekToProgress(int pro) throws RemoteException {
+        myMediaPlayer.seekTo(pro);
     }
 
     private synchronized void dataComplete(){

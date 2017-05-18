@@ -13,6 +13,9 @@ interface IMyMusicPlayerService {
     int getPlayMode();
     void prepare(int position);
     boolean isPlaying();
+    int getMusicCurrentPosition();
+    int getMusicDuration();
+    void seekToProgress(int pro);
 
     void registerCallback(IMyMusicPlayerServiceCallBack callback);
     void unRegisterCallback(IMyMusicPlayerServiceCallBack callback);
