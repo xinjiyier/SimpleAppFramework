@@ -7,11 +7,14 @@ import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.IBinder;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.lava.shopping.androidkuangjia.IMyMusicPlayerService;
+import com.lava.shopping.androidkuangjia.IMyMusicPlayerServiceCallBack;
 import com.lava.shopping.androidkuangjia.items.MediaItem;
 
 import java.io.IOException;
@@ -19,8 +22,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MyMusicPlayerService extends Service {
+    private boolean isDataComplete = false;
     private List<MediaItem> mediaItems;
-    private MediaPlayer mediaPlayer;
+    private MediaPlayer myMediaPlayer;
+    private RemoteCallbackList<IMyMusicPlayerServiceCallBack> callbackList = new RemoteCallbackList<>();
     /**
      * 播放模式分别是
      * 列表循环 MUSIC_LOOP
@@ -35,8 +40,14 @@ public class MyMusicPlayerService extends Service {
 
     private int playMode = MUSIC_ORDER;
 
-    public MyMusicPlayerService() {
+    @Override
+    public void onCreate() {
+        super.onCreate();
         getLocalVideoData();
+    }
+
+    public MyMusicPlayerService() {
+        //
     }
 
     @Override
@@ -45,6 +56,7 @@ public class MyMusicPlayerService extends Service {
         return iBinder;
     }
     public void getLocalVideoData() {
+        isDataComplete = false;
         if(mediaItems == null){
             mediaItems = new ArrayList<>();
         }else{
@@ -76,6 +88,7 @@ public class MyMusicPlayerService extends Service {
                     }
                 }
                 //handler.sendEmptyMessage(0);
+                cursor.close();
             }
         }.start();
     }
@@ -121,36 +134,63 @@ public class MyMusicPlayerService extends Service {
         public void prepare(int position) throws RemoteException {
             service.prepare(position);
         }
+
+        @Override
+        public boolean isPlaying() throws RemoteException {
+            return service.isPlaying();
+        }
+
+        @Override
+        public void registerCallback(IMyMusicPlayerServiceCallBack callback) throws RemoteException {
+            service.registerCallback(callback);
+        }
+
+        @Override
+        public void unRegisterCallback(IMyMusicPlayerServiceCallBack callback) throws RemoteException {
+            service.unRegisterCallback(callback);
+        }
     };
 
     /**
      * 准备播放音乐
      */
     private void prepare(int position){
-        Log.d("chenxiaoping","prepare  "+position);
+        Log.d("uuu","prepare  "+position);
         if(mediaItems!=null && mediaItems.size()>0){
-            Log.d("chenxiaoping","mediaItems  "+mediaItems.size());
-            if(mediaPlayer!=null){
-                Log.d("chenxiaoping","mediaPlayer != null ");
+            Log.d("uuu","mediaItems  "+mediaItems.size());
+            if(myMediaPlayer!=null){
+                Log.d("uuu","mediaPlayer != null ");
                 //mediaPlayer.release();
-                mediaPlayer.reset();
+                //myMediaPlayer.stop();
+                myMediaPlayer.reset();
+                myMediaPlayer = null;
             }
             try {
-                mediaPlayer = new MediaPlayer();
-                mediaPlayer.setOnPreparedListener(new MyOnPreparedListener());
-                mediaPlayer.setDataSource(this, Uri.parse(mediaItems.get(position).getMediaData()));
-                mediaPlayer.prepareAsync();
+                Log.d("uuu","mediaPlayer != null ");
+                if(myMediaPlayer==null){
+                    Log.d("uuu","mediaPlayer == null ");
+                    myMediaPlayer = new MediaPlayer();
+                }
+                myMediaPlayer.setOnPreparedListener(new MyOnPreparedListener());
+                myMediaPlayer.setOnCompletionListener(new MyOnCompletionListener());
+                myMediaPlayer.setOnErrorListener(new MyOnErrorListener());
+                Log.d("uuu","mediaPlayer != null := "+mediaItems.get(position).getMediaData());
+
+                myMediaPlayer.setDataSource(this, Uri.parse(mediaItems.get(position).getMediaData()));
+                myMediaPlayer.prepareAsync();
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }else{
+            Toast.makeText(this,"数据还未准备好，请耐心等待。",Toast.LENGTH_SHORT).show();
         }
     }
     /**
      * 开始播放音乐
      */
     private void start(){
-        if(!mediaPlayer.isPlaying()){
-            mediaPlayer.start();
+        if(!myMediaPlayer.isPlaying()){
+            myMediaPlayer.start();
         }
     }
     /**
@@ -164,8 +204,8 @@ public class MyMusicPlayerService extends Service {
      * 暂停播放音乐
      */
     private void pause(){
-        if(mediaPlayer.isPlaying()){
-            mediaPlayer.pause();
+        if(myMediaPlayer.isPlaying()){
+            myMediaPlayer.pause();
         }
     }
 
@@ -203,10 +243,77 @@ public class MyMusicPlayerService extends Service {
 
     }
 
+    /**
+     * 是否正在播放
+     */
+    private boolean isPlaying(){
+        return myMediaPlayer.isPlaying();
+    }
+
+    /**
+     * 注册回调
+     * @param callback
+     * @throws RemoteException
+     */
+    private void registerCallback(IMyMusicPlayerServiceCallBack callback) throws RemoteException {
+        Log.d("xxx","registerCallback");
+        if(callback!=null){
+            callbackList.register(callback);
+        }
+    }
+
+    /**
+     * 取消回调注册
+     * @param callback
+     * @throws RemoteException
+     */
+    private void unRegisterCallback(IMyMusicPlayerServiceCallBack callback) throws RemoteException {
+        if(callback!=null){
+            callbackList.unregister(callback);
+        }
+    }
+
+    private synchronized void dataComplete(){
+        int count = callbackList.beginBroadcast();//准备通知callbacks
+        Log.d("xxx","dataComplete count:= "+count);
+        try {
+            for(int i= 0 ;i < count ;i++){
+                Log.d("xxx","dataComplete callbackList:= "+callbackList.toString());
+                callbackList.getBroadcastItem(i).Dataompleted();
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        callbackList.finishBroadcast();
+    }
+
     class MyOnPreparedListener implements MediaPlayer.OnPreparedListener{
         @Override
         public void onPrepared(MediaPlayer mediaPlayer) {
-            mediaPlayer.start();
+            Log.d("uuu","onPrepared and started"+mediaPlayer.getDuration());
+            myMediaPlayer.start();
+            dataComplete();
         }
+    }
+
+    class MyOnCompletionListener implements MediaPlayer.OnCompletionListener{
+        @Override
+        public void onCompletion(MediaPlayer mediaPlayer) {
+            Log.d("uuu","MyOnCompletionListener");
+        }
+    }
+
+    class MyOnErrorListener implements MediaPlayer.OnErrorListener{
+        @Override
+        public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+            Log.d("uuu","MyOnErrorListener");
+            return false;
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        callbackList.kill();
+        super.onDestroy();
     }
 }

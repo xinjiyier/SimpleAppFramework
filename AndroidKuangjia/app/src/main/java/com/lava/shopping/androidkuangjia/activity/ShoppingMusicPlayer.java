@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.lava.shopping.androidkuangjia.IMyMusicPlayerService;
+import com.lava.shopping.androidkuangjia.IMyMusicPlayerServiceCallBack;
 import com.lava.shopping.androidkuangjia.items.MediaItem;
 import com.lava.shopping.androidkuangjia.service.MyMusicPlayerService;
 import com.lava.shopping.androidkuangjia.R;
@@ -36,13 +39,25 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
 
     private IMyMusicPlayerService mService;
     private List<MediaItem> mediaItems;
-    private int mediaItemsPosition;
+    private int mediaItemsPosition = 0 ;
+    private boolean isBind = false;
+    private boolean isServicePrepared = false;
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            setButtonsEnable(true);
+        }
+    };
     private ServiceConnection conn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
             mService = IMyMusicPlayerService.Stub.asInterface(iBinder);
+            isBind = true;
             try {
-                mService.prepare(mediaItemsPosition);
+                mService.registerCallback(callback);
+                Log.d("xxx","registerCallback 1111111111");
+                preparePlayMusic();
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -50,13 +65,40 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-
+            isBind = false;
         }
     };
+
+    private void preparePlayMusic() {
+        try {
+            mService.prepare(mediaItemsPosition);
+            setButtonsEnable(true);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    IMyMusicPlayerServiceCallBack.Stub callback = new IMyMusicPlayerServiceCallBack.Stub() {
+        @Override
+        public void Dataompleted() throws RemoteException {
+            Log.d("xxx","dataComplete 1111111111");
+            //preparePlayMusic();
+            handler.sendEmptyMessage(0);
+        }
+    };
+
+    private void setButtonsEnable(boolean isEnable) {
+        btChangeMode.setEnabled(isEnable);
+        btPlayPre.setEnabled(isEnable);
+        btPalyAndPause.setEnabled(isEnable);
+        btPalyNext.setEnabled(isEnable);
+        btShowLyric.setEnabled(isEnable);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("uuu","onCreate");
         setContentView(R.layout.activity_shopping_music_player);
         initViews();
         initDatas();
@@ -112,8 +154,19 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d("uuu","ondestroy");
         unbindService(conn);
+        try {
+            //在销毁的时候取消回调注册
+            if(callback!=null){
+                mService.unRegisterCallback(callback);
+            }
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        isServicePrepared = false;
         mService = null;
+        isBind = false;
     }
 
     @Override
@@ -123,7 +176,15 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
         } else if ( v == btPlayPre ) {
             // Handle clicks for btPlayPre
         } else if ( v == btPalyAndPause ) {
-            // Handle clicks for btPalyAndPause
+            try {
+                if(mService.isPlaying()){
+                    mService.pause();
+                }else{
+                    mService.start();
+                }
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         } else if ( v == btPalyNext ) {
             // Handle clicks for btPalyNext
         } else if ( v == btShowLyric ) {

@@ -491,7 +491,8 @@
         </service>
 
         <activity android:name=".activity.ShoppingMusicPlayer"
-            android:launchMode="singleTask"></activity>
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation"></activity>
     </application>
 
 </manifest>

@@ -1,0 +1,95 @@
+在这儿我们记录自己在自测过程中遇到的bug,以及自己的解决方法
+2017/05/18
+1、现象：杀掉进程之后，第一次进行音乐播放，会出现无法播放音乐，如果此时进行播放暂停等操作则会出现应用崩溃的现象
+出现原因：
+    在 bindService 成功之后，对service 中的方法进行调用，此时 在 service 的 prepare 方法中（见下边）
+
+     if(mediaItems!=null && mediaItems.size()>0){
+                Log.d("uuu","mediaItems  "+mediaItems.size());
+                if(mediaPlayer!=null){
+                    Log.d("uuu","mediaPlayer != null ");
+                    //mediaPlayer.release();
+                    mediaPlayer.reset();
+                }
+                try {
+                    Log.d("uuu","mediaPlayer != null ");
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setOnPreparedListener(new MyOnPreparedListener());
+                    mediaPlayer.setDataSource(this, Uri.parse(mediaItems.get(position).getMediaData()));
+                    mediaPlayer.prepareAsync();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+     因为数据获取异步任务还没有执行完毕，所以 mediaItems 是空的。所以此时mediaPlayer 对象是空的，所以没有播放歌曲，与此同时，调用isPlaying() 方法。
+             public boolean isPlaying() throws RemoteException {
+                 return mediaPlayer.isPlaying();
+             }
+     系统报空指针异常就是正常的。
+解决方法：
+    用aidl 回调，在数据获取完成之后，回调 ShoppingMusicPlayer 的方法，再进行初始化。
+
+2、正在播放一首歌曲，点击播放另一首歌曲，出现无法播放的情况；由于小米手机做了一些处理，所以没有报错，只是不播放音乐，导致用了好长时间来摸索这件事情。
+出现原因：
+       一共报了两个错误：
+       第一、在子线程中对控件做了修改更新：
+       修改前
+       IMyMusicPlayerServiceCallBack.Stub callback = new IMyMusicPlayerServiceCallBack.Stub() {
+               @Override
+               public void Dataompleted() throws RemoteException {
+                  setButtonsEnable(true);//此处做了修改
+               }
+           };
+       修改后
+        IMyMusicPlayerServiceCallBack.Stub callback = new IMyMusicPlayerServiceCallBack.Stub() {
+            @Override
+            public void Dataompleted() throws RemoteException {
+                handler.sendEmptyMessage(0);//此处做了修改
+            }
+        };
+
+        第二、就是下边报的这个问题
+3、Process: com.lava.shopping.androidkuangjia:remote, PID: 4149
+                                                                                          java.lang.IllegalStateException: beginBroadcast() called while already in a broadcast
+                                                                                              at android.os.RemoteCallbackList.beginBroadcast(RemoteCallbackList.java:230)
+                                                                                              at com.lava.shopping.androidkuangjia.service.MyMusicPlayerService.dataComplete(MyMusicPlayerService.java:277)
+                                                                                              at com.lava.shopping.androidkuangjia.service.MyMusicPlayerService.access$1300(MyMusicPlayerService.java:24)
+                                                                                              at com.lava.shopping.androidkuangjia.service.MyMusicPlayerService$MyOnPreparedListener.onPrepared(MyMusicPlayerService.java:294)
+                                                                                              at android.media.MediaPlayer$EventHandler.handleMessage(MediaPlayer.java:2760)
+                                                                                              at android.os.Handler.dispatchMessage(Handler.java:111)
+                                                                                              at android.os.Looper.loop(Looper.java:194)
+                                                                                              at android.app.ActivityThread.main(ActivityThread.java:5631)
+                                                                                              at java.lang.reflect.Method.invoke(Native Method)
+                                                                                              at java.lang.reflect.Method.invoke(Method.java:372)
+                                                                                              at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:959)
+                                                                                              at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:754)
+出现原因：RemoteCallbackList 使用错误了
+
+解决方法：使用正确的解决方法
+        callbackList.beginBroadcast()；
+        然后 回调结束
+        callbackList.finishBroadcast();
+        最后在service的 onDestroy()
+        中 callbackList.kill()
+        调用kill()方法
+        代码如下：
+         private synchronized void dataComplete(){
+                int count = callbackList.beginBroadcast();//准备通知callbacks
+                Log.d("xxx","dataComplete count:= "+count);
+                try {
+                    for(int i= 0 ;i < count ;i++){
+                        Log.d("xxx","dataComplete callbackList:= "+callbackList.toString());
+                        callbackList.getBroadcastItem(i).Dataompleted();
+                    }
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                callbackList.finishBroadcast();
+          }
+
+          public void onDestroy() {
+               callbackList.kill();
+               super.onDestroy();
+          }
+
