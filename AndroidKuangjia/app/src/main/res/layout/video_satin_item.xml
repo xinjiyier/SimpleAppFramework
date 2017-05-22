@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+        <ImageView
+            android:id="@+id/iv_satin_updater"
+            android:src="@mipmap/desk_icon"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_height="match_parent" />
+        <LinearLayout
+            android:layout_toRightOf="@+id/iv_satin_updater"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tv_satin_updater_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="7dp"
+                android:textColor="@color/satin_updater_name_color"
+                android:text="红肠机械"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/satin_updater_time_color"
+                android:layout_marginTop="5dp"
+                android:textSize="4dp"
+                android:text="2017-05-22 20:54"/>
+        </LinearLayout>
+    </RelativeLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:textSize="9dp"
+        android:textColor="@color/framework_text_color"
+        android:text="摄像师：太刺激了，这谁受得了。。"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal">
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tex/>
+    </LinearLayout>
+</LinearLayout>

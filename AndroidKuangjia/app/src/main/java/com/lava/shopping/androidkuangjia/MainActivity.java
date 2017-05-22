@@ -114,7 +114,7 @@ public class MainActivity extends FragmentActivity {
         mBaseFragment.add(new ZhuYeFragment(MainActivity.this));
         mBaseFragment.add(new WeiTaoFragment(MainActivity.this));
         mBaseFragment.add(new MyTaoBaoFragment(MainActivity.this));
-        mBaseFragment.add(new GouWuCheFragment());
+        mBaseFragment.add(new GouWuCheFragment(MainActivity.this));
         mBaseFragment.add(new ChaWuLiuFragment());
     }
 
