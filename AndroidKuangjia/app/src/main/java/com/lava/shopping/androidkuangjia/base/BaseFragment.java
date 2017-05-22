@@ -12,8 +12,10 @@ import android.view.ViewGroup;
  * Created by Xiaoping.Chen on 2017/4/26.
  */
 
-public abstract class BaseFragment extends Fragment{
+public  abstract  class BaseFragment extends Fragment{
     public Context mContext;
+
+    public BaseFragment(){}
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

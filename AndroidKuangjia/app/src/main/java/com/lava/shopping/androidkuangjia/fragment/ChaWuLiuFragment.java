@@ -13,6 +13,9 @@ import com.lava.shopping.androidkuangjia.base.BaseFragment;
 
 public class ChaWuLiuFragment extends BaseFragment{
     private TextView textView;
+
+    public ChaWuLiuFragment(){}
+
     @Override
     public View initView() {
         textView = new TextView(mContext);

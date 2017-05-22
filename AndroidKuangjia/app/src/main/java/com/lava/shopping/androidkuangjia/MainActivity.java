@@ -13,7 +13,7 @@ import com.lava.shopping.androidkuangjia.fragment.ChaWuLiuFragment;
 import com.lava.shopping.androidkuangjia.fragment.GouWuCheFragment;
 import com.lava.shopping.androidkuangjia.fragment.MyTaoBaoFragment;
 import com.lava.shopping.androidkuangjia.fragment.WeiTaoFragment;
-import com.lava.shopping.androidkuangjia.fragment.IndexFragment;
+import com.lava.shopping.androidkuangjia.fragment.ZhuYeFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +111,7 @@ public class MainActivity extends FragmentActivity {
 
     private void initFragment() {
         mBaseFragment = new ArrayList<>();
-        mBaseFragment.add(new IndexFragment(MainActivity.this));
+        mBaseFragment.add(new ZhuYeFragment(MainActivity.this));
         mBaseFragment.add(new WeiTaoFragment(MainActivity.this));
         mBaseFragment.add(new MyTaoBaoFragment(MainActivity.this));
         mBaseFragment.add(new GouWuCheFragment());

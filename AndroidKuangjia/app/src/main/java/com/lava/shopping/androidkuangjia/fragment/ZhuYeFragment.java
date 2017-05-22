@@ -29,6 +29,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.vov.vitamio.utils.Log;
+
 /**
  * Created by Xiaoping.Chen on 2017/4/26.
  */
@@ -61,13 +63,18 @@ public class ZhuYeFragment extends BaseFragment{
         }
     };
 
+    public ZhuYeFragment(){}
+
     @SuppressLint("ValidFragment")
-    public ZhuYeFragment(Context context){
+    public  ZhuYeFragment(Context context){
         this.mContext = context;
     }
 
     @Override
     public View initView() {
+        if(mContext ==null){
+            Log.d("chenxiaoping","ZhuYe de mContext 是空的");
+        }
         View view = View.inflate(mContext,R.layout.video_list,null);
         videoLv = (ListView) view.findViewById(R.id.video_lv);
         videoPb = (ProgressBar) view.findViewById(R.id.video_pb);

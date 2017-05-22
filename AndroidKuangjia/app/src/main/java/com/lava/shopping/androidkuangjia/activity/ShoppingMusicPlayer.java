@@ -53,6 +53,21 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
     private static final int BUTTON_ENABLE = 0;
     private static final int INIT_MUSIC_STABLE_DATA = 1;
     private static final int INIT_MUSIC_CHANGING_DATA = 2;
+    /**
+     * 播放模式分别是
+     * 列表循环 MUSIC_LOOP
+     * 单曲循环 MUSIC_SINGLE
+     * 顺序播放 MUSIC_ORDER
+     * 随机播放 MUSIC_RANDOM
+     */
+    private static final int MUSIC_LOOP = 0;
+    private static final int MUSIC_SINGLE = 1;
+    private static final int MUSIC_ORDER = 2;
+    private static final int MUSIC_RANDOM = 3;
+
+    private int[] musicMode = new int[]{MUSIC_LOOP,MUSIC_SINGLE,MUSIC_ORDER};
+    private int currentMode = MUSIC_LOOP;
+
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -104,6 +119,7 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
         @Override
         public void Dataompleted() throws RemoteException {
             Log.d("xxx","dataComplete 1111111111");
+            mediaItemsPosition = mService.getCurrentMusic();
             //preparePlayMusic();
             handler.sendEmptyMessage(BUTTON_ENABLE);
             handler.sendEmptyMessage(INIT_MUSIC_STABLE_DATA);
@@ -137,6 +153,7 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
                 sBuffer.setLength(0);
                 sBuffer.append(utils.stringForTime(mService.getMusicCurrentPosition()));
                 sBuffer.append("/");
+                Log.d("chenxiaoping","aaaaaa  "+(sBuffer==null)+"       "+(mService==null));
                 sBuffer.append(utils.stringForTime(mService.getMusicDuration()));
                 sbMusicProgress.setProgress(mService.getMusicCurrentPosition());
                 tvMusicProgress.setText(sBuffer);
@@ -178,7 +195,7 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
         sbMusicProgress = (SeekBar) findViewById(R.id.sb_music_progress);
         btChangeMode = (Button)findViewById( R.id.bt_change_mode );
         btPlayPre = (Button)findViewById( R.id.bt_play_pre );
-        btPalyAndPause = (Button)findViewById( R.id.bt_paly_and_pause );
+        btPalyAndPause = (Button)findViewById( R.id.bt_play_and_pause );
         btPalyNext = (Button)findViewById( R.id.bt_paly_next );
         btShowLyric = (Button)findViewById( R.id.bt_show_lyric );
         ivMusicImageBg = (ImageView) findViewById(R.id.iv_music_image_bg);
@@ -235,22 +252,67 @@ public class ShoppingMusicPlayer extends Activity implements View.OnClickListene
     public void onClick(View v) {
         if ( v == btChangeMode ) {
             // Handle clicks for btChangeMode
+            resetMusicPlayMode();
         } else if ( v == btPlayPre ) {
             // Handle clicks for btPlayPre
+            try {
+                mService.playPreMusic();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         } else if ( v == btPalyAndPause ) {
             try {
                 if(mService.isPlaying()){
                     mService.pause();
+                    btPalyAndPause.setBackgroundResource(R.drawable.play_bt_bg);
                 }else{
                     mService.start();
+                    btPalyAndPause.setBackgroundResource(R.drawable.pause_bt_bg);
                 }
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
         } else if ( v == btPalyNext ) {
             // Handle clicks for btPalyNext
+            try {
+                mService.playNextMusic();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         } else if ( v == btShowLyric ) {
             // Handle clicks for btShowLyric
+        }
+    }
+
+    private void resetMusicPlayMode() {
+        switch (currentMode){
+            case MUSIC_LOOP:
+                try {
+                    currentMode = MUSIC_SINGLE;
+                    btChangeMode.setBackgroundResource(R.drawable.singlemode_bt_bg);
+                    mService.setPlayMode(MUSIC_SINGLE);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case MUSIC_SINGLE:
+                try {
+                    currentMode = MUSIC_ORDER;
+                    btChangeMode.setBackgroundResource(R.drawable.ordermode_bt_bg);
+                    mService.setPlayMode(MUSIC_ORDER);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case MUSIC_ORDER:
+                try {
+                    currentMode = MUSIC_LOOP;
+                    btChangeMode.setBackgroundResource(R.drawable.loopmode_bt_bg);
+                    mService.setPlayMode(MUSIC_LOOP);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                break;
         }
     }
 

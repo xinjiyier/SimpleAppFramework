@@ -13,6 +13,9 @@ import com.lava.shopping.androidkuangjia.base.BaseFragment;
 
 public class GouWuCheFragment extends BaseFragment{
     private TextView textView;
+
+    public GouWuCheFragment(){}
+
     @Override
     public View initView() {
         textView = new TextView(mContext);

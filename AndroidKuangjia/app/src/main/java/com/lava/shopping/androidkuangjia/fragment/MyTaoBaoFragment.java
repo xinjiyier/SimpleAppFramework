@@ -63,6 +63,8 @@ public class MyTaoBaoFragment extends BaseFragment{
         }
     };
 
+    public MyTaoBaoFragment(){}
+
     @SuppressLint("ValidFragment")
     public MyTaoBaoFragment(Context context){
         this.mContext = context;

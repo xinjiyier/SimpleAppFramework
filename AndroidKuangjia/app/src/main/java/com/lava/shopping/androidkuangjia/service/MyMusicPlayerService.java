@@ -23,6 +23,7 @@ import java.util.List;
 
 public class MyMusicPlayerService extends Service {
     private boolean isDataComplete = false;
+    private int currentMusic = 0;
     private List<MediaItem> mediaItems;
     private MediaPlayer myMediaPlayer;
     private RemoteCallbackList<IMyMusicPlayerServiceCallBack> callbackList = new RemoteCallbackList<>();
@@ -38,11 +39,12 @@ public class MyMusicPlayerService extends Service {
     private static final int MUSIC_ORDER = 2;
     private static final int MUSIC_RANDOM = 1;
 
-    private int playMode = MUSIC_ORDER;
+    private int currentPlayMode = MUSIC_ORDER;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d("xxx","MyMusicPlayerService start");
         getLocalVideoData();
     }
 
@@ -56,6 +58,7 @@ public class MyMusicPlayerService extends Service {
         return iBinder;
     }
     public void getLocalVideoData() {
+        Log.d("chenxiaoping","huoqu shuju ");
         isDataComplete = false;
         if(mediaItems == null){
             mediaItems = new ArrayList<>();
@@ -156,6 +159,11 @@ public class MyMusicPlayerService extends Service {
         }
 
         @Override
+        public int getCurrentMusic() throws RemoteException {
+            return service.getCurrentMusic();
+        }
+
+        @Override
         public void registerCallback(IMyMusicPlayerServiceCallBack callback) throws RemoteException {
             service.registerCallback(callback);
         }
@@ -171,6 +179,7 @@ public class MyMusicPlayerService extends Service {
      */
     private void prepare(int position){
         Log.d("uuu","prepare  "+position);
+        currentMusic = position;
         if(mediaItems!=null && mediaItems.size()>0){
             Log.d("uuu","mediaItems  "+mediaItems.size());
             if(myMediaPlayer!=null){
@@ -228,27 +237,43 @@ public class MyMusicPlayerService extends Service {
      *播放上一首音乐
      */
     private void playPreMusic(){
-
+        /**
+         * 如果当前播放为第一首
+         * 则开始播放最后一首
+         */
+        if(currentMusic==0){
+            prepare(mediaItems.size()-1);
+        }else{
+            prepare(--currentMusic);
+        }
     }
 
     /**
      * 播放下一首音乐
      */
     private void playNextMusic(){
-
+        /**
+         * 如果当前播放为最后一首
+         * 则开始播放第一首
+         */
+        if(currentMusic==(mediaItems.size()-1)){
+            prepare(0);
+        }else{
+            prepare(++currentMusic);
+        }
     }
 
     /**
      *设置音乐播放模式
      */
     private void setPlayMode(int playMode){
-
+        currentPlayMode = playMode;
     }
     /**
      * 获取音乐播放模式
      */
     private int getPlayMode(){
-        return playMode;
+        return currentPlayMode;
     }
 
     /**
@@ -294,6 +319,10 @@ public class MyMusicPlayerService extends Service {
      * @throws RemoteException
      */
     public int getMusicCurrentPosition() throws RemoteException {
+        if(myMediaPlayer==null){
+            Log.d("chenxiaoping","bao le kong zhizhen yicahng");
+            return 0;
+        }
         return myMediaPlayer.getCurrentPosition();
     }
 
@@ -313,6 +342,15 @@ public class MyMusicPlayerService extends Service {
      */
     public void seekToProgress(int pro) throws RemoteException {
         myMediaPlayer.seekTo(pro);
+    }
+
+    /**
+     * 返回当前是哪一首歌曲
+     * @return
+     * @throws RemoteException
+     */
+    public int getCurrentMusic() throws RemoteException {
+        return currentMusic;
     }
 
     private synchronized void dataComplete(){
@@ -342,6 +380,19 @@ public class MyMusicPlayerService extends Service {
         @Override
         public void onCompletion(MediaPlayer mediaPlayer) {
             Log.d("uuu","MyOnCompletionListener");
+            switch (currentPlayMode){
+                case MUSIC_LOOP:
+                    playNextMusic();
+                    break;
+                case MUSIC_SINGLE:
+                    prepare(currentMusic);
+                    break;
+                case MUSIC_ORDER:
+                    if(currentMusic!=(mediaItems.size()-1)){
+                        playNextMusic();
+                    }
+                    break;
+            }
         }
     }
 

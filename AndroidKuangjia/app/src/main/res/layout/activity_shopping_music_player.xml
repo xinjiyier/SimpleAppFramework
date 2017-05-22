@@ -57,7 +57,7 @@
             android:enabled="false"
             android:layout_weight="1"/>
         <Button
-            android:id="@+id/bt_paly_and_pause"
+            android:id="@+id/bt_play_and_pause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/pause_bt_bg"

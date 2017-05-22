@@ -74,6 +74,8 @@ public class WeiTaoFragment extends BaseFragment implements XListView.IXListView
         }
     };
 
+    public WeiTaoFragment(){}
+
     @SuppressLint("ValidFragment")
     public WeiTaoFragment(Context context){
         this.mContext = context;

@@ -1,5 +1,59 @@
 在这儿我们记录自己在自测过程中遇到的bug,以及自己的解决方法
 2017/05/18
+错误log
+FATAL EXCEPTION: main
+                                                                                   Process: com.lava.shopping.androidkuangjia, PID: 16091
+                                                                                   java.lang.RuntimeException: Unable to start activity ComponentInfo{com.lava.shopping.androidkuangjia/com.lava.shopping.androidkuangjia.MainActivity}: android.support.v4.app.Fragment$InstantiationException: Unable to instantiate fragment com.lava.shopping.androidkuangjia.fragment.IndexFragment: make sure class name exists, is public, and has an empty constructor that is public
+                                                                                       at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2724)
+                                                                                       at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2789)
+                                                                                       at android.app.ActivityThread.-wrap12(ActivityThread.java)
+                                                                                       at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1527)
+                                                                                       at android.os.Handler.dispatchMessage(Handler.java:110)
+                                                                                       at android.os.Looper.loop(Looper.java:203)
+                                                                                       at android.app.ActivityThread.main(ActivityThread.java:6266)
+                                                                                       at java.lang.reflect.Method.invoke(Native Method)
+                                                                                       at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:1063)
+                                                                                       at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:924)
+                                                                                    Caused by: android.support.v4.app.Fragment$InstantiationException: Unable to instantiate fragment com.lava.shopping.androidkuangjia.fragment.IndexFragment: make sure class name exists, is public, and has an empty constructor that is public
+                                                                                       at android.support.v4.app.Fragment.instantiate(Fragment.java:441)
+                                                                                       at android.support.v4.app.FragmentState.instantiate(Fragment.java:109)
+                                                                                       at android.support.v4.app.FragmentManagerImpl.restoreAllState(FragmentManager.java:2800)
+                                                                                       at android.support.v4.app.FragmentController.restoreAllState(FragmentController.java:158)
+                                                                                       at android.support.v4.app.FragmentActivity.onCreate(FragmentActivity.java:328)
+                                                                                       at com.lava.shopping.androidkuangjia.MainActivity.onCreate(MainActivity.java:30)
+                                                                                       at android.app.Activity.performCreate(Activity.java:6795)
+                                                                                       at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1123)
+                                                                                       at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2677)
+                                                                                       at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2789) 
+                                                                                       at android.app.ActivityThread.-wrap12(ActivityThread.java) 
+                                                                                       at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1527) 
+                                                                                       at android.os.Handler.dispatchMessage(Handler.java:110) 
+                                                                                       at android.os.Looper.loop(Looper.java:203) 
+                                                                                       at android.app.ActivityThread.main(ActivityThread.java:6266) 
+                                                                                       at java.lang.reflect.Method.invoke(Native Method) 
+                                                                                       at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:1063) 
+                                                                                       at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:924) 
+                                                                                    Caused by: java.lang.InstantiationException: java.lang.Class<com.lava.shopping.androidkuangjia.fragment.IndexFragment> has no zero argument constructor
+                                                                                       at java.lang.Class.newInstance(Native Method)
+                                                                                       at android.support.v4.app.Fragment.instantiate(Fragment.java:430)
+                                                                                       at android.support.v4.app.FragmentState.instantiate(Fragment.java:109) 
+                                                                                       at android.support.v4.app.FragmentManagerImpl.restoreAllState(FragmentManager.java:2800) 
+                                                                                       at android.support.v4.app.FragmentController.restoreAllState(FragmentController.java:158) 
+                                                                                       at android.support.v4.app.FragmentActivity.onCreate(FragmentActivity.java:328) 
+                                                                                       at com.lava.shopping.androidkuangjia.MainActivity.onCreate(MainActivity.java:30) 
+                                                                                       at android.app.Activity.performCreate(Activity.java:6795) 
+                                                                                       at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1123) 
+                                                                                       at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2677) 
+                                                                                       at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2789) 
+                                                                                       at android.app.ActivityThread.-wrap12(ActivityThread.java) 
+                                                                                       at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1527) 
+                                                                                       at android.os.Handler.dispatchMessage(Handler.java:110) 
+                                                                                       at android.os.Looper.loop(Looper.java:203) 
+                                                                                       at android.app.ActivityThread.main(ActivityThread.java:6266) 
+                                                                                       at java.lang.reflect.Method.invoke(Native Method) 
+                                                                                       at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:1063) 
+                                                                                       at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:924) 
+
 1、现象：杀掉进程之后，第一次进行音乐播放，会出现无法播放音乐，如果此时进行播放暂停等操作则会出现应用崩溃的现象
 出现原因：
     在 bindService 成功之后，对service 中的方法进行调用，此时 在 service 的 prepare 方法中（见下边）
@@ -92,4 +146,6 @@
                callbackList.kill();
                super.onDestroy();
           }
+2017/05/20 今天主要完成 播放界面中 上一曲 下一曲 以及播放模式的切换功能的实现  19:42 完成
+
 
